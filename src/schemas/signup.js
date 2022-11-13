@@ -14,10 +14,28 @@ module.exports = async (req, res) => {
 
     const { value, error } = schema.validate(req.body);
     if (error) {
-        return res.send(error);
+        return res.send({
+            success: false,
+            value: null,
+            error: error.details
+        });
     }
 
     const UserModel = mongoose.model('User');
+    const userExists = await UserModel.exists({
+        'email.address': value.email
+    });
+
+    console.log(userExists);
+
+    if (userExists) {
+        return res.send({
+            success: false,
+            value: null,
+            error: 'Email already exists!',
+        });
+    }
+
     await UserModel.create({
         name: value.name,
         email: {
