@@ -1,14 +1,9 @@
 const mongoose = require('mongoose');
 
 module.exports = async (req, res) => {
-    const CookieModel = mongoose.model('Cookie');
-    await CookieModel.updateOne({
-        _id: mongoose.mongo.ObjectId(req.cookies.auth)
-    }, {
-        $set: {
-            isDeleted: true
-        }
-    });
+    const { jti, exp } = req.state;
+
+    redis.set(jti, 'expired', 'EX', 10 * 60);
 
     res.clearCookie('auth');
 
